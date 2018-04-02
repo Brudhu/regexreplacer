@@ -51,14 +51,14 @@ int main(int argc, char *argv[])
             QFileInfo filePath(filePathStr);
             if(!filePath.isFile())
             {
-                break;
+                continue;
             }
 
             QFile f(filePathStr);
             if(!f.open(QIODevice::ReadWrite))
             {
                 qInfo() << f.fileName() << "- Unable to open.";
-                break;
+                continue;
             }
 
             qInfo() << f.fileName() << "- Replacing strings...";
