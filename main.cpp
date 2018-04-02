@@ -11,8 +11,12 @@ int main(int argc, char *argv[])
     QCoreApplication::setApplicationName("RegexReplacer");
     QCoreApplication::setApplicationVersion("1.0");
 
+    qSetMessagePattern("[%{type}] %{message}");
+
     QCommandLineParser parser;
-    parser.setApplicationDescription("Qt application to replace strings in files using regular expressions");
+    parser.setApplicationDescription("Qt application to replace strings in files using regular expressions. "
+                                     "It can be used with a single file or a directory - in this case, it will "
+                                     "replace strings in every file inside the directory.");
     parser.addHelpOption();
     parser.addVersionOption();
     parser.addPositionalArgument("path", QCoreApplication::translate("main", "Path to file or directory to replace strings."));
@@ -32,13 +36,13 @@ int main(int argc, char *argv[])
         parser.showHelp();
     }
 
-    qDebug() << "Regex source: " << args.at(1);
     QFileInfo path(args.at(0));
     QRegularExpression regexSource(args.at(1));
     QString regexDest(args.at(2));
 
     if(path.isDir()) // If it's a directory, enter and do the regex replacing in all the files.
     {
+        qInfo() << "Argument \"Path\" is a directory. Accessing it...";
         QDirIterator dirIt(path.path(), QDirIterator::NoIteratorFlags);
 
         while(dirIt.hasNext())
@@ -53,11 +57,11 @@ int main(int argc, char *argv[])
             QFile f(filePathStr);
             if(!f.open(QIODevice::ReadWrite))
             {
-                qDebug() << f.fileName() << ": Unable to open.";
+                qInfo() << f.fileName() << "- Unable to open.";
                 break;
             }
 
-            qDebug() << f.fileName();
+            qInfo() << f.fileName() << "- Replacing strings...";
             QString content = QString(f.readAll());
             content.replace(regexSource, regexDest);
 
@@ -69,13 +73,14 @@ int main(int argc, char *argv[])
     {
         QFile f(path.filePath());
 
+        qInfo() << "Argument \"Path\" is a file.";
         if(!f.open(QIODevice::ReadWrite))
         {
-            qDebug() << f.fileName() << ": Unable to open.";
+            qInfo() << f.fileName() << "- Unable to open.";
         }
         else
         {
-            qDebug() << f.fileName();
+            qInfo() << f.fileName() << "- Replacing strings...";
             QString content = QString(f.readAll());
             content.replace(regexSource, regexDest);
 
@@ -83,6 +88,8 @@ int main(int argc, char *argv[])
             f.write(content.toUtf8());
         }
     }
+
+    qInfo() << "Done!";
 
     return 0;
 }
