@@ -38,6 +38,12 @@ int main(int argc, char *argv[])
 
     QFileInfo path(args.at(0));
     QRegularExpression regexSource(args.at(1));
+    if(!regexSource.isValid())
+    {
+        qInfo() << "Invalid regex:" << regexSource.pattern() << "- aborting...";
+        return -1;
+    }
+
     QString regexDest(args.at(2));
 
     if(path.isDir()) // If it's a directory, enter and do the regex replacing in all the files.
@@ -61,9 +67,10 @@ int main(int argc, char *argv[])
                 continue;
             }
 
-            qInfo() << f.fileName() << "- Replacing strings...";
             QString content = QString(f.readAll());
+            int matches = content.count(regexSource);
             content.replace(regexSource, regexDest);
+            qInfo() << f.fileName() << "- Replacing strings... Found" << matches << "matches.";
 
             f.resize(0);
             f.write(content.toUtf8());
@@ -80,9 +87,10 @@ int main(int argc, char *argv[])
         }
         else
         {
-            qInfo() << f.fileName() << "- Replacing strings...";
             QString content = QString(f.readAll());
+            int matches = content.count(regexSource);
             content.replace(regexSource, regexDest);
+            qInfo() << f.fileName() << "- Replacing strings... Found" << matches << "matches.";
 
             f.resize(0);
             f.write(content.toUtf8());
