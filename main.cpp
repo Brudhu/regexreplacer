@@ -60,7 +60,7 @@ int main(int argc, char *argv[])
 
     QCommandLineOption v("verbosity",
             QCoreApplication::translate("main", "Set application verbosity level. From 0 (silent) to 4 (very verbose). Default: 3"),
-            QCoreApplication::translate("main", "directory"),
+            QCoreApplication::translate("main", "verbosity [0~4]"),
             "3");
     parser.addOption(v);
     parser.process(a);
