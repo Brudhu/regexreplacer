@@ -63,6 +63,9 @@ int main(int argc, char *argv[])
             QCoreApplication::translate("main", "verbosity [0~4]"),
             "3");
     parser.addOption(v);
+
+    QCommandLineOption r(QStringList() << "r" << "R" << "recursive", QCoreApplication::translate("main", "Replace strings in directories and files recursively"));
+    parser.addOption(r);
     parser.process(a);
 
     int verbosity = parser.value(v).toInt();
@@ -75,6 +78,8 @@ int main(int argc, char *argv[])
 
     MyOutput output(verbosity);
     output.printOutput(QtInfoMsg, 1, QString("Starting regexreplacer..."));
+
+    bool recursive = parser.isSet(r);
 
     QFileInfo path(args.at(0));
     QRegularExpression regexSource(args.at(1));
@@ -89,7 +94,13 @@ int main(int argc, char *argv[])
     if(path.isDir()) // If it's a directory, enter and do the regex replacing in all the files.
     {
         output.printOutput(QtInfoMsg, 3, QString("Argument \"Path\" is a directory. Accessing it (%1)...").arg(path.path()));
-        QDirIterator dirIt(path.path(), QDirIterator::NoIteratorFlags);
+
+        // Add the recursive option
+        QDirIterator::IteratorFlags flags = QDirIterator::NoIteratorFlags;
+        if(recursive)
+            flags = QDirIterator::Subdirectories;
+
+        QDirIterator dirIt(path.path(), flags);
 
         while(dirIt.hasNext())
         {
